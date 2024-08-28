@@ -4,7 +4,7 @@ module main_memory(
     input  logic [9:0]  address,
     input  logic        control_mem_write,
     input  logic        waring,
-    input logic [1:0] storetype,
+    input  logic [1:0]  storetype,   // 00: byte, 01: halfword, 10: word
     output logic [127:0] read_value,
     output logic        done
 );
@@ -23,7 +23,23 @@ module main_memory(
         done <= 0;
         
         if (control_mem_write) begin
-            memory[address] <= data_in;
+            case (storetype)
+                2'b00: begin
+                    // Byte store
+                    memory[address][7:0] <= data_in[7:0];
+                end
+                2'b01: begin
+                    // Halfword store
+                    memory[address][15:0] <= data_in[15:0];
+                end
+                2'b10: begin
+                    // Word store
+                    memory[address] <= data_in;
+                end
+                default: begin
+                    // No operation
+                end
+            endcase
             countOFMem <= countOFMem + 1;
             done <= 0;
             
